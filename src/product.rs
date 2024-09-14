@@ -63,17 +63,15 @@ impl Product for ProductService {
 
         info!("Got products {} from database", products.len());
 
-        let mut product_responses = vec![];
-
-        for product in products {
-            product_responses.push(ProductResponse {
+        let product_responses: Vec<ProductResponse> = products.into_iter().map(|product| {
+            ProductResponse {
                 id: product._id.map(|id| id.to_hex()).unwrap_or_default(),
                 name: product.name,
                 description: product.description,
                 current: product.currency,
                 price: product.price,
-            });
-        }
+            }
+        }).collect();
 
         let response = ProductListResponse {
             products: product_responses
