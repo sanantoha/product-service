@@ -13,6 +13,8 @@ mod models;
 
 const PRODUCT_SERVICE_PORT_NAME: &str = "PRODUCT_PORT";
 
+const PRODUCT_MONGO_URI: &str = "PRODUCT_MONGO_URI";
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     std::env::set_var("RUST_LOG", std::env::var("RUST_LOG").unwrap_or("info".to_owned()));
@@ -22,9 +24,12 @@ async fn main() -> Result<(), Error> {
     let port = env::var(PRODUCT_SERVICE_PORT_NAME)
         .map_err(|e| Error::Var { input: PRODUCT_SERVICE_PORT_NAME, source: e })?;
 
+    let mongo_uri = env::var(PRODUCT_MONGO_URI)
+        .map_err(|e| Error::Var { input: PRODUCT_MONGO_URI, source: e })?;
+
     let addr = format!("[::1]:{}", port).parse()?;
 
-    let client = Client::with_uri_str("mongodb://localhost:27017").await?;
+    let client = Client::with_uri_str(mongo_uri).await?;
     let product_repository = ProductRepository::new(client);
     let product_service = ProductService::new(product_repository);
 
