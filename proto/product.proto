@@ -5,6 +5,7 @@ package product;
 service Product {
   rpc Save (ProductRequest) returns (ProductResponse);
   rpc GetProductList (Empty) returns (ProductListResponse);
+  rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse);
 }
 
 message ProductRequest {
@@ -27,3 +28,11 @@ message ProductListResponse {
 }
 
 message Empty {}
+
+message DeleteProductRequest {
+  string id = 1;
+}
+
+message DeleteProductResponse {
+  bool is_deleted = 1;
+}

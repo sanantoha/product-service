@@ -10,6 +10,9 @@ pub enum Error {
     #[error("Failed to retrieve inserted ID {0}")]
     MongoKey(String),
 
+    #[error(transparent)]
+    MongoParseKey(#[from] mongodb::bson::oid::Error),
+
     #[error("Can not parse variable: {input}")]
     Var {
         input: &'static str,

@@ -1,6 +1,6 @@
 use proto::product_server::Product;
 use tonic::{Request, Response, Status};
-use crate::product::proto::{Empty, ProductListResponse, ProductRequest, ProductResponse};
+use crate::product::proto::{Empty, ProductListResponse, ProductRequest, ProductResponse, DeleteProductRequest, DeleteProductResponse};
 use crate::product_repository::ProductRepository;
 use log::{info, error};
 
@@ -78,5 +78,23 @@ impl Product for ProductService {
         };
 
         Ok(Response::new(response))
+    }
+
+    async fn delete_product(&self, request: Request<DeleteProductRequest>) -> Result<Response<DeleteProductResponse>, Status> {
+        let delete_product_request = request.get_ref();
+        info!("Got delete product request: {:?}", delete_product_request);
+
+        let id = self.product_repository.delete_product(&delete_product_request.id).await
+            .map_err(|err| {
+                error!("Failed to delete product id: {} {:?}", delete_product_request.id, err);
+                Status::internal(format!("could not delete product id {}", delete_product_request.id))
+            })?;
+
+        let mut deleted_msg = "is not deleted";
+        if id {
+            deleted_msg = "is deleted";
+        }
+        info!("product id {} {}", delete_product_request.id, deleted_msg);
+        Ok(Response::new(DeleteProductResponse { is_deleted: id }))
     }
 }

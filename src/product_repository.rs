@@ -1,6 +1,7 @@
 use crate::models::Product;
 use mongodb::{bson::Bson, bson::doc, Client, Collection};
 use log::info;
+use mongodb::bson::oid::ObjectId;
 use tonic::codegen::tokio_stream::StreamExt;
 use crate::error::Error;
 
@@ -41,5 +42,13 @@ impl ProductRepository {
         }
 
         Ok(products)
+    }
+
+    pub async fn delete_product(&self, id: &str) -> Result<bool, Error> {
+        let obj_id = ObjectId::parse_str(id)?;
+
+        let res = self.collection.delete_one(doc! {"_id": obj_id}).await?;
+
+        Ok(res.deleted_count > 0)
     }
 }
